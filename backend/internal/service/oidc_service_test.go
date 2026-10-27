@@ -183,6 +183,14 @@ func TestOidcService_GetRegisteredPasskeyRegistrationCallbackURL(t *testing.T) {
 			expected: "https://tenant.example.org/callback",
 		},
 		{
+			name:  "wildcard cannot be escaped with a hostname suffix",
+			input: "https://tenant.example.org.example.com/callback",
+		},
+		{
+			name:  "wildcard cannot be escaped with a non-default port",
+			input: "https://tenant.example.org:8443/callback",
+		},
+		{
 			name:  "unknown external URL is rejected",
 			input: "https://evil.example/steal",
 		},
@@ -226,6 +234,17 @@ func TestOidcService_GetRegisteredPasskeyRegistrationCallbackURL(t *testing.T) {
 
 	t.Run("missing client is rejected", func(t *testing.T) {
 		got, err := s.GetRegisteredPasskeyRegistrationCallbackURL(t.Context(), "missing-client", "https://example.com/callback")
+		require.NoError(t, err)
+		require.Empty(t, got)
+	})
+
+	t.Run("client with empty callback URL list rejects the URL", func(t *testing.T) {
+		require.NoError(t, db.Create(&model.OidcClient{
+			Base: model.Base{ID: "empty-callback-client"},
+			Name: "Empty Callback Client",
+		}).Error)
+
+		got, err := s.GetRegisteredPasskeyRegistrationCallbackURL(t.Context(), "empty-callback-client", "https://example.com/callback")
 		require.NoError(t, err)
 		require.Empty(t, got)
 	})

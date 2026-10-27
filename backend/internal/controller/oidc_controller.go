@@ -162,8 +162,7 @@ func (oc *OidcController) getRegisteredPasskeyRegistrationCallbackURLHandler(c *
 	}
 
 	c.JSON(http.StatusOK, dto.OidcRegisteredPasskeyRegistrationCallbackURLDto{
-		Registered:  callbackURL != "",
-		CallbackURL: callbackURL,
+		Registered: callbackURL != "",
 	})
 }
 

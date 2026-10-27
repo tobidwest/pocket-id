@@ -79,11 +79,11 @@
 		const result = await tryCatch(
 			oidcService.getRegisteredPasskeyRegistrationCallbackURL(clientID, callbackURL)
 		);
-		if (result.error || !result.data.registered || !result.data.callbackURL) {
+		if (result.error || !result.data.registered) {
 			return accountSettingsPath;
 		}
 
-		return result.data.callbackURL;
+		return callbackURL;
 	}
 
 	function skipForNow() {

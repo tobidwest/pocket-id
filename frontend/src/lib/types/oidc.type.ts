@@ -91,5 +91,4 @@ export type CompleteInteractionResponse = {
 
 export type RegisteredPasskeyRegistrationCallbackURL = {
 	registered: boolean;
-	callbackURL?: string;
 };

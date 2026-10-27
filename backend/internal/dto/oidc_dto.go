@@ -76,8 +76,7 @@ type OidcUpdateAllowedUserGroupsDto struct {
 }
 
 type OidcRegisteredPasskeyRegistrationCallbackURLDto struct {
-	Registered  bool   `json:"registered"`
-	CallbackURL string `json:"callbackURL,omitempty"`
+	Registered bool `json:"registered"`
 }
 
 type OidcLogoutDto struct {

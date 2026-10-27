@@ -24,6 +24,7 @@ export type OidcClientCredentials = {
 export type OidcClient = OidcClientMetaData & {
 	callbackURLs: string[];
 	logoutCallbackURLs: string[];
+	passkeyRegistrationCallbackURLs: string[];
 	isPublic: boolean;
 	pkceEnabled: boolean;
 	requiresReauthentication: boolean;
@@ -88,7 +89,7 @@ export type CompleteInteractionResponse = {
 	redirectUrl?: string;
 };
 
-export type RegisteredCallbackURL = {
+export type RegisteredPasskeyRegistrationCallbackURL = {
 	registered: boolean;
-	redirectURI?: string;
+	callbackURL?: string;
 };

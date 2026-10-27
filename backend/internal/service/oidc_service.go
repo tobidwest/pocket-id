@@ -120,26 +120,28 @@ func (s *OidcService) ListClients(ctx context.Context, name string, listRequestO
 	return clients, response, err
 }
 
-func (s *OidcService) GetRegisteredCallbackURL(ctx context.Context, redirectURI string) (string, error) {
-	if redirectURI == "" {
+func (s *OidcService) GetRegisteredPasskeyRegistrationCallbackURL(ctx context.Context, clientID, callbackURL string) (string, error) {
+	if clientID == "" || callbackURL == "" {
 		return "", nil
 	}
 
-	var clients []model.OidcClient
+	var client model.OidcClient
 	err := s.db.
 		WithContext(ctx).
-		Select("callback_urls").
-		Find(&clients).
+		Select("passkey_registration_callback_urls").
+		First(&client, "id = ?", clientID).
 		Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", nil
+		}
 		return "", err
 	}
 
-	for _, client := range clients {
-		matchedURL, err := oidc.MatchRedirectURI(redirectURI, oidc.Client{OidcClient: client})
-		if err == nil && matchedURL != nil {
-			return matchedURL.String(), nil
-		}
+	client.CallbackURLs = client.PasskeyRegistrationCallbackURLs
+	matchedURL, err := oidc.MatchRedirectURI(callbackURL, oidc.Client{OidcClient: client})
+	if err == nil && matchedURL != nil {
+		return matchedURL.String(), nil
 	}
 
 	return "", nil
@@ -240,6 +242,7 @@ func updateOIDCClientModelFromDto(client *model.OidcClient, input *dto.OidcClien
 	client.Name = input.Name
 	client.CallbackURLs = input.CallbackURLs
 	client.LogoutCallbackURLs = input.LogoutCallbackURLs
+	client.PasskeyRegistrationCallbackURLs = input.PasskeyRegistrationCallbackURLs
 	client.IsPublic = input.IsPublic
 	// PKCE is required for public clients
 	client.PkceEnabled = input.IsPublic || input.PkceEnabled

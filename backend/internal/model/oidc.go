@@ -26,6 +26,7 @@ type OidcClient struct {
 	Secret                              string
 	CallbackURLs                        UrlList
 	LogoutCallbackURLs                  UrlList
+	PasskeyRegistrationCallbackURLs     UrlList
 	ImageType                           *string
 	DarkImageType                       *string
 	IsPublic                            bool

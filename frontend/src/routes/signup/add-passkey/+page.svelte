@@ -50,7 +50,7 @@
 	}
 
 	async function redirectAfterSuccessfulPasskeySetup() {
-		const redirectPath = await getValidatedCallbackURLFromQueryParam('redirect_uri');
+		const redirectPath = await getValidatedCallbackURLFromQueryParam('success_uri');
 		if (redirectPath === accountSettingsPath) {
 			await goto(redirectPath);
 			return;
@@ -71,16 +71,19 @@
 
 	async function getValidatedCallbackURLFromQueryParam(queryParam: string) {
 		const callbackURL = page.url.searchParams.get(queryParam);
-		if (!callbackURL) {
+		const clientID = page.url.searchParams.get('client_id');
+		if (!callbackURL || !clientID) {
 			return accountSettingsPath;
 		}
 
-		const result = await tryCatch(oidcService.getRegisteredCallbackURL(callbackURL));
-		if (result.error || !result.data.registered || !result.data.redirectURI) {
+		const result = await tryCatch(
+			oidcService.getRegisteredPasskeyRegistrationCallbackURL(clientID, callbackURL)
+		);
+		if (result.error || !result.data.registered || !result.data.callbackURL) {
 			return accountSettingsPath;
 		}
 
-		return result.data.redirectURI;
+		return result.data.callbackURL;
 	}
 
 	function skipForNow() {

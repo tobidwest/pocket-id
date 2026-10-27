@@ -15,6 +15,7 @@ type OidcClientDto struct {
 	OidcClientMetaDataDto
 	CallbackURLs                        []string                 `json:"callbackURLs"`
 	LogoutCallbackURLs                  []string                 `json:"logoutCallbackURLs"`
+	PasskeyRegistrationCallbackURLs     []string                 `json:"passkeyRegistrationCallbackURLs"`
 	IsPublic                            bool                     `json:"isPublic"`
 	PkceEnabled                         bool                     `json:"pkceEnabled"`
 	RequiresPushedAuthorizationRequests bool                     `json:"requiresPushedAuthorizationRequests"`
@@ -38,6 +39,7 @@ type OidcClientUpdateDto struct {
 	Name                                string                   `json:"name" binding:"required,max=50" unorm:"nfc"`
 	CallbackURLs                        []string                 `json:"callbackURLs" binding:"omitempty,dive,callback_url_pattern"`
 	LogoutCallbackURLs                  []string                 `json:"logoutCallbackURLs" binding:"omitempty,dive,callback_url_pattern"`
+	PasskeyRegistrationCallbackURLs     []string                 `json:"passkeyRegistrationCallbackURLs" binding:"omitempty,dive,callback_url_pattern"`
 	IsPublic                            bool                     `json:"isPublic"`
 	PkceEnabled                         bool                     `json:"pkceEnabled"`
 	RequiresReauthentication            bool                     `json:"requiresReauthentication"`
@@ -73,9 +75,9 @@ type OidcUpdateAllowedUserGroupsDto struct {
 	UserGroupIDs []string `json:"userGroupIds" binding:"required"`
 }
 
-type OidcRegisteredCallbackURLDto struct {
+type OidcRegisteredPasskeyRegistrationCallbackURLDto struct {
 	Registered  bool   `json:"registered"`
-	RedirectURI string `json:"redirectURI,omitempty"`
+	CallbackURL string `json:"callbackURL,omitempty"`
 }
 
 type OidcLogoutDto struct {

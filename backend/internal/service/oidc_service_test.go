@@ -148,22 +148,23 @@ func TestOidcService_updateClientLogoType(t *testing.T) {
 	})
 }
 
-func TestOidcService_GetRegisteredCallbackURL(t *testing.T) {
+func TestOidcService_GetRegisteredPasskeyRegistrationCallbackURL(t *testing.T) {
 	db := testutils.NewDatabaseForTest(t)
 	s := &OidcService{db: db}
 
 	require.NoError(t, db.Create(&model.OidcClient{
 		Base: model.Base{ID: "client-one"},
 		Name: "Client One",
-		CallbackURLs: model.UrlList{
+		CallbackURLs: model.UrlList{"https://example.com/oauth/callback"},
+		PasskeyRegistrationCallbackURLs: model.UrlList{
 			"https://example.com/callback",
 			"https://*.example.org/callback",
 		},
 	}).Error)
 	require.NoError(t, db.Create(&model.OidcClient{
-		Base:         model.Base{ID: "client-two"},
-		Name:         "Client Two",
-		CallbackURLs: model.UrlList{"https://client.example.net/oauth/callback"},
+		Base:                            model.Base{ID: "client-two"},
+		Name:                            "Client Two",
+		PasskeyRegistrationCallbackURLs: model.UrlList{"https://client.example.net/passkey/complete"},
 	}).Error)
 
 	tests := []struct {
@@ -190,6 +191,14 @@ func TestOidcService_GetRegisteredCallbackURL(t *testing.T) {
 			input: "https://example.com/callback#fragment",
 		},
 		{
+			name:  "OAuth callback URL is not accepted",
+			input: "https://example.com/oauth/callback",
+		},
+		{
+			name:  "callback URL registered for another client is rejected",
+			input: "https://client.example.net/passkey/complete",
+		},
+		{
 			name:  "missing URL is rejected",
 			input: "",
 		},
@@ -197,7 +206,7 @@ func TestOidcService_GetRegisteredCallbackURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := s.GetRegisteredCallbackURL(t.Context(), tt.input)
+			got, err := s.GetRegisteredPasskeyRegistrationCallbackURL(t.Context(), "client-one", tt.input)
 			require.NoError(t, err)
 			require.Equal(t, tt.expected, got)
 		})
@@ -207,10 +216,16 @@ func TestOidcService_GetRegisteredCallbackURL(t *testing.T) {
 		require.NoError(t, db.Create(&model.OidcClient{
 			Base:         model.Base{ID: "wildcard-client"},
 			Name:         "Wildcard Client",
-			CallbackURLs: model.UrlList{"*"},
+			PasskeyRegistrationCallbackURLs: model.UrlList{"*"},
 		}).Error)
 
-		got, err := s.GetRegisteredCallbackURL(t.Context(), "/settings/account")
+		got, err := s.GetRegisteredPasskeyRegistrationCallbackURL(t.Context(), "wildcard-client", "/settings/account")
+		require.NoError(t, err)
+		require.Empty(t, got)
+	})
+
+	t.Run("missing client is rejected", func(t *testing.T) {
+		got, err := s.GetRegisteredPasskeyRegistrationCallbackURL(t.Context(), "missing-client", "https://example.com/callback")
 		require.NoError(t, err)
 		require.Empty(t, got)
 	})

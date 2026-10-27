@@ -38,7 +38,7 @@ func NewOidcController(group *gin.RouterGroup, authMiddleware *middleware.AuthMi
 	group.DELETE("/oidc/clients/:id/logo", authMiddleware.Add(), oc.deleteClientLogoHandler)
 	group.POST("/oidc/clients/:id/logo", authMiddleware.Add(), fileSizeLimitMiddleware.Add(2<<20), oc.updateClientLogoHandler)
 
-	group.GET("/oidc/redirect-uri/registered", authMiddleware.WithAdminNotRequired().Add(), oc.getRegisteredRedirectURIHandler)
+	group.GET("/oidc/passkey-registration-callback-url/registered", authMiddleware.WithAdminNotRequired().Add(), oc.getRegisteredPasskeyRegistrationCallbackURLHandler)
 
 	group.GET("/oidc/clients/:id/preview/:userId", authMiddleware.Add(), oc.getClientPreviewHandler)
 
@@ -154,16 +154,16 @@ func (oc *OidcController) listClientsHandler(c *gin.Context) {
 	})
 }
 
-func (oc *OidcController) getRegisteredRedirectURIHandler(c *gin.Context) {
-	redirectURI, err := oc.oidcService.GetRegisteredCallbackURL(c.Request.Context(), c.Query("redirect_uri"))
+func (oc *OidcController) getRegisteredPasskeyRegistrationCallbackURLHandler(c *gin.Context) {
+	callbackURL, err := oc.oidcService.GetRegisteredPasskeyRegistrationCallbackURL(c.Request.Context(), c.Query("client_id"), c.Query("callback_url"))
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.OidcRegisteredCallbackURLDto{
-		Registered:  redirectURI != "",
-		RedirectURI: redirectURI,
+	c.JSON(http.StatusOK, dto.OidcRegisteredPasskeyRegistrationCallbackURLDto{
+		Registered:  callbackURL != "",
+		CallbackURL: callbackURL,
 	})
 }
 

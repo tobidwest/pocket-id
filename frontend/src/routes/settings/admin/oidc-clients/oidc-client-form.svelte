@@ -46,6 +46,7 @@
 		name: existingClient?.name || '',
 		callbackURLs: existingClient?.callbackURLs || [],
 		logoutCallbackURLs: existingClient?.logoutCallbackURLs || [],
+		passkeyRegistrationCallbackURLs: existingClient?.passkeyRegistrationCallbackURLs || [],
 		isPublic: existingClient?.isPublic || false,
 		pkceEnabled: existingClient?.pkceEnabled || false,
 		requiresReauthentication: existingClient?.requiresReauthentication || false,
@@ -75,6 +76,7 @@
 		name: z.string().min(2).max(50),
 		callbackURLs: z.array(callbackUrlSchema).default([]),
 		logoutCallbackURLs: z.array(callbackUrlSchema).default([]),
+		passkeyRegistrationCallbackURLs: z.array(callbackUrlSchema).default([]),
 		isPublic: z.boolean(),
 		pkceEnabled: z.boolean(),
 		requiresReauthentication: z.boolean(),
@@ -206,6 +208,13 @@
 			class="w-full"
 			bind:callbackURLs={$inputs.logoutCallbackURLs.value}
 			bind:error={$inputs.logoutCallbackURLs.error}
+		/>
+		<OidcCallbackUrlInput
+			label={m.passkey_registration_callback_urls()}
+			description={m.passkey_registration_callback_url_description()}
+			class="w-full"
+			bind:callbackURLs={$inputs.passkeyRegistrationCallbackURLs.value}
+			bind:error={$inputs.passkeyRegistrationCallbackURLs.error}
 		/>
 		<SwitchWithLabel
 			id="public-client"
